@@ -11,8 +11,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\DirectoryScanner.cpp" />
     <ClCompile Include="src\FileSystemStatisticsWindow.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\StatisticsProvider.cpp" />
+    <ClCompile Include="src\StatusInfo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="FileSystemStatisticsWindow.qrc" />
@@ -22,6 +25,12 @@
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="src\FileSystemStatisticsWindow.ui" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="src\StatisticsProvider.h" />
+    <QtMoc Include="src\DirectoryScanner.h" />
+    <ClInclude Include="src\ExtensionInfo.h" />
+    <ClInclude Include="src\StatusInfo.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5B1E4A33-3522-4420-B7E6-E66EAE804D28}</ProjectGuid>
@@ -66,13 +75,13 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;.\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;.\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
