@@ -1,9 +1,11 @@
 #include "FileSystemStatisticsWindow.h"
+#include "StatisticsTableModel.h"
 
 #include <QSplitter>
 #include <QFileSystemModel>
 #include <QDebug>
 #include <QMessageBox>
+#include <QKeyEvent>
 
 FileSystemStatisticsWindow::FileSystemStatisticsWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -11,8 +13,9 @@ FileSystemStatisticsWindow::FileSystemStatisticsWindow(QWidget *parent)
 	ui.setupUi(this); 
 	
 	mFilesystemModel = new QFileSystemModel;
-	mFilesystemModel->setRootPath(QDir::rootPath());
-	ui.filesystemTree->setModel(mFilesystemModel);
+	mFilesystemModel->setRootPath(QDir::rootPath());	
+
+	mStatisticsModel = new StatisticsTableModel(this);	
 
 	mStatisticsProvider = new StatisticsProvider(this);
 
@@ -37,15 +40,24 @@ FileSystemStatisticsWindow::FileSystemStatisticsWindow(QWidget *parent)
 FileSystemStatisticsWindow::~FileSystemStatisticsWindow()
 {
 	delete mStatisticsProvider;
+	delete mStatisticsModel;
+	delete mFilesystemModel;
 }
 
 void FileSystemStatisticsWindow::initWidgets()
 {	
-	ui.filesystemTree->setColumnWidth(0, 300);
+	ui.filesystemTree->setModel(mFilesystemModel);
+	ui.filesystemTree->setColumnWidth(1, 300);	
 	ui.filesystemTree->setColumnHidden(1, true);
 	ui.filesystemTree->setColumnHidden(2, true);
-	ui.filesystemTree->setColumnHidden(3, true);
+	ui.filesystemTree->setColumnHidden(3, true);	
 	ui.filesystemTree->setHeaderHidden(true);
+	
+
+	ui.statisticsTable->setModel(mStatisticsModel);
+	ui.statisticsTable->horizontalHeader()->resizeSection(StatisticsTableModel::Columns::ColFilesSize, 200);
+	ui.statisticsTable->horizontalHeader()->resizeSection(StatisticsTableModel::Columns::ColAvgFileSize, 200);
+//	ui.statisticsTable->horizontalHeader()->setGr
 	
 	menuBar()->hide();
 	ui.mainToolBar->hide();
@@ -57,7 +69,7 @@ void FileSystemStatisticsWindow::initWidgets()
 	splitterMain->addWidget(ui.filesystemTree);
 	splitterMain->addWidget(ui.statisticsGroup);
 	splitterMain->setStretchFactor(0, 1);
-	splitterMain->setStretchFactor(1, 4);
+	splitterMain->setStretchFactor(1, 3);
 
 	setCentralWidget(splitterMain);
 }
@@ -68,9 +80,34 @@ void FileSystemStatisticsWindow::updateStatus(OperationStatus status)
 	ui.statusOperationEdit->setText(toString(mStatus));
 }
 
+void FileSystemStatisticsWindow::clearStatistics()
+{
+	mStatisticsModel->clear();
+	ui.statisticsSubdirsEdit->setText("0");
+}
+
+void FileSystemStatisticsWindow::clearStatus()
+{
+	ui.statusSelectedDirEdit->clear();
+	ui.statusCurrentProcessedDirEdit->clear();
+}
+
+void FileSystemStatisticsWindow::clear()
+{
+	clearStatistics();
+	clearStatus();
+}
+
 void FileSystemStatisticsWindow::closeEvent(QCloseEvent* event)
 {
-	mStatisticsProvider->stop();
-
 	QMainWindow::closeEvent(event);
+}
+
+void FileSystemStatisticsWindow::keyPressEvent(QKeyEvent * event)
+{
+	QMainWindow::keyPressEvent(event);
+
+	if (event->key() == Qt::Key_F1) {
+		clear();
+	}
 }

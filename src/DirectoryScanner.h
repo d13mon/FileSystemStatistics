@@ -3,6 +3,7 @@
 
 #include "ExtensionInfo.h"
 
+#include <QString>
 #include <QObject>
 #include <QRunnable>
 #include <QFileInfo>
@@ -13,17 +14,18 @@ class DirectoryScanner : public QObject, public QRunnable
 	Q_OBJECT
 
 public:
-	DirectoryScanner(QObject *parent);
+	DirectoryScanner(const QFileInfo& dirInfo, QObject *parent = nullptr);
 	~DirectoryScanner();	
-
-	void setDir(const QFileInfo& dirInfo);
+	
 	QFileInfo getDir() const;
 
-	void stop();
-	void reset();
+public:
+    void run() override;
+	void stop();	
 
-protected: 
-	void run() override;
+signals:
+
+	void currentProcessedDirChanged(const QString & dirPath);	
 
 private:
 
@@ -34,7 +36,9 @@ private:
 
 	std::atomic_bool mStopped{ false };
 
-	ExtensionInfoHash mExtensionsInfoList;
+	//ExtensionInfoHash mExtensionsInfoList;
+
+	static const QString TAG;
 };
 
 #endif

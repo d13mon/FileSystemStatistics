@@ -12,10 +12,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\DirectoryScanner.cpp" />
+    <ClCompile Include="src\ExtensionInfo.cpp" />
     <ClCompile Include="src\FileSystemStatisticsWindow.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\StatisticsProvider.cpp" />
+    <ClCompile Include="src\StatisticsTableModel.cpp" />
     <ClCompile Include="src\StatusInfo.cpp" />
+    <ClCompile Include="src\test\TestExtensionInfo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="FileSystemStatisticsWindow.qrc" />
@@ -27,6 +30,8 @@
     <QtUic Include="src\FileSystemStatisticsWindow.ui" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="src\StatisticsTableModel.h" />
+    <ClInclude Include="src\test\TestExtensionInfo.h" />
     <QtMoc Include="src\StatisticsProvider.h" />
     <QtMoc Include="src\DirectoryScanner.h" />
     <ClInclude Include="src\ExtensionInfo.h" />
@@ -77,6 +82,10 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>src;.\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

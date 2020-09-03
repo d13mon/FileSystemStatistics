@@ -3,20 +3,17 @@
 #include <QDebug>
 #include <QDir>
 
+const QString DirectoryScanner::TAG = "DirectoryScanner:";
 
-DirectoryScanner::DirectoryScanner(QObject *parent)
+DirectoryScanner::DirectoryScanner(const QFileInfo& dirInfo, QObject *parent)
 	: QObject(parent)	
+	, mDirInfo(dirInfo)
 {
 }
 
 DirectoryScanner::~DirectoryScanner()
 {
 	stop();
-}
-
-void DirectoryScanner::setDir(const QFileInfo& dirInfo)
-{
-	mDirInfo = dirInfo;
 }
 
 QFileInfo DirectoryScanner::getDir() const
@@ -26,12 +23,19 @@ QFileInfo DirectoryScanner::getDir() const
 
 void DirectoryScanner::run()
 {	
-	qDebug() << "RUN";
+	qDebug() << TAG << "Enter THREAD";
 
 	if (!mDirInfo.isDir())
 		return;
 	
-	scan(mDirInfo);
+	scan(mDirInfo);	
+
+	qDebug() << TAG  << " EXIT THREAD";
+}
+
+void DirectoryScanner::stop()
+{
+	mStopped = true;
 }
 
 void DirectoryScanner::scan(const QFileInfo& dirInfo)
@@ -45,24 +49,45 @@ void DirectoryScanner::scan(const QFileInfo& dirInfo)
 		return;
 	}
 
-	QFileInfoList files = dir.entryInfoList();
+	qDebug() << TAG << "__SCAN DIR_____: " <<  dirInfo.absoluteFilePath();
+
+	ExtensionInfoHash extInfoHash;
+
+	QFileInfoList files = dir.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
 	for (QFileInfo fi : files) {
 		if (mStopped)
-			return;
+			return;		
 
 		qDebug() << fi.absoluteFilePath();
+
+		if (fi.isDir()) {
+			scan(fi);
+			continue;
+		}			
+		
+		auto ext = ExtensionInfo::parseExtension(fi);
+		auto size = fi.size();	
+
+		//qDebug() << fi.absoluteFilePath() << "EXT = " << ext << "SIZE = " + size;
+
+		if (!extInfoHash.contains(ext)) {
+			extInfoHash[ext] = { ext, 1, size };
+		}
+		else {
+			auto extInfo = extInfoHash.take(ext);
+			extInfo.filesCount++;
+			extInfo.sizeBytes += size;
+			extInfoHash.insert(extInfo.name, extInfo);
+		}		
+	}//for
+
+	QHashIterator<QString, ExtensionInfo> i(extInfoHash);
+	while (i.hasNext()) {
+		i.next();
+		qDebug() << i.key() << ": COUNT = " << i.value().filesCount << " SIZE = " << i.value().sizeBytes << Qt::endl;
 	}
 }
 
-void DirectoryScanner::stop()
-{
-	mStopped = true;
-}
 
-void DirectoryScanner::reset()
-{
-	mExtensionsInfoList.clear();
-	mDirInfo = QFileInfo{};
 
-	mStopped = false;
-}
+

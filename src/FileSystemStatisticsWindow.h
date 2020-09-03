@@ -8,6 +8,7 @@
 #include <QtWidgets/QMainWindow>
 
 class QFileSystemModel;
+class StatisticsTableModel;
 
 class FileSystemStatisticsWindow : public QMainWindow
 {
@@ -21,8 +22,15 @@ private:
 
 	void updateStatus(OperationStatus status);
 
+public slots:
+
+	void clearStatistics();
+	void clearStatus();
+	void clear();
+
 protected: 
 	virtual void closeEvent(QCloseEvent* event) override;
+	virtual void keyPressEvent(QKeyEvent* event) override;
 
 private:
     Ui::FileSystemStatisticsWindowClass ui;
@@ -32,6 +40,8 @@ private:
 	OperationStatus mStatus = OperationStatus::WAITING;
 
 	StatisticsProvider* mStatisticsProvider = nullptr;
+
+	StatisticsTableModel* mStatisticsModel = nullptr;
 };
 
 #endif // FILE_SYSTEM_STATISTICS_WINDOW_H

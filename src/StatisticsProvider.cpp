@@ -3,35 +3,50 @@
 #include "DirectoryScanner.h"
 
 #include <QThreadPool>
+#include <QDebug>
+
+const QString StatisticsProvider::TAG = "StatisticsProvider:";
 
 StatisticsProvider::StatisticsProvider(QObject *parent)
 	: QObject(parent)
-{
-	mDirectoryScanner = new DirectoryScanner(this); 
-	mDirectoryScanner->setAutoDelete(false);
+{	
 }
 
 StatisticsProvider::~StatisticsProvider()
 {
-	stop();
-
-	delete mDirectoryScanner;
+	stop();	
 }
 
 void StatisticsProvider::start(const QFileInfo& dirInfo)
 {
 	stop();
 
-	mDirectoryScanner->setDir(dirInfo);
+	Q_ASSERT(!mDirectoryScanner);
+
+	mDirectoryScanner = new DirectoryScanner(dirInfo);	
+	mDirectoryScanner->setAutoDelete(false);
 
 	QThreadPool::globalInstance()->start(mDirectoryScanner);
 }	
 
 void StatisticsProvider::stop()
 {	
-	mDirectoryScanner->stop();
+	qDebug() << TAG << "STOP";
 
-	QThreadPool::globalInstance()->waitForDone();
+	if (mDirectoryScanner)
+	{
+        mDirectoryScanner->stop();		
+	}	
 
-	mDirectoryScanner->reset();		
+	qDebug() << TAG << "STOP: Waiting...";
+
+	while (!QThreadPool::globalInstance()->waitForDone()) {
+
+		 qDebug() << "WAIT FOR DONE...";         
+	}
+
+	qDebug() << TAG << "WAIT FOR DONE finished";
+	
+	delete mDirectoryScanner;
+	mDirectoryScanner = nullptr;			
 }

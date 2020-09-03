@@ -12,12 +12,14 @@ class StatisticsProvider : public QObject
 
 public:
 	StatisticsProvider(QObject *parent);
-	~StatisticsProvider();
+	virtual ~StatisticsProvider();
 
 	void start(const QFileInfo& dirInfo);
 	void stop();
 private:
 	DirectoryScanner* mDirectoryScanner = nullptr;
+
+	static const QString TAG;
 };
 
 #endif

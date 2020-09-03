@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>FileSystemStatisticsWindow</string>
+   <string>FileSystem Statistics</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QTreeView" name="filesystemTree">
@@ -27,15 +27,76 @@
    <widget class="QGroupBox" name="statisticsGroup">
     <property name="geometry">
      <rect>
-      <x>550</x>
+      <x>690</x>
       <y>170</y>
-      <width>120</width>
-      <height>80</height>
+      <width>276</width>
+      <height>253</height>
      </rect>
     </property>
     <property name="title">
      <string>Statistics</string>
     </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Subdirs count:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="statisticsSubdirsEdit">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>70</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>0</string>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QTableView" name="statisticsTable">
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::NoSelection</enum>
+       </property>
+       <attribute name="verticalHeaderVisible">
+        <bool>false</bool>
+       </attribute>
+      </widget>
+     </item>
+    </layout>
    </widget>
    <widget class="QFrame" name="statusFrame">
     <property name="geometry">
@@ -80,7 +141,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="statusCurrentProcessedDirEdit"/>
+      <widget class="QLineEdit" name="statusCurrentProcessedDirEdit">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>

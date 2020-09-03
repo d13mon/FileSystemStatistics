@@ -22,6 +22,9 @@
       <Extensions>qrc;*</Extensions>
       <ParseFiles>false</ParseFiles>
     </Filter>
+    <Filter Include="Source Files\test">
+      <UniqueIdentifier>{b931e9fd-8128-4361-9cbc-c9693abad967}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -37,6 +40,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\StatisticsProvider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ExtensionInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\test\TestExtensionInfo.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="src\StatisticsTableModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -55,6 +67,9 @@
     <QtMoc Include="src\StatisticsProvider.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="src\StatisticsTableModel.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="src\FileSystemStatisticsWindow.ui">
@@ -67,6 +82,9 @@
     </ClInclude>
     <ClInclude Include="src\StatusInfo.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\test\TestExtensionInfo.h">
+      <Filter>Source Files\test</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

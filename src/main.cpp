@@ -1,6 +1,14 @@
 #include "FileSystemStatisticsWindow.h"
 #include <QtWidgets/QApplication>
 
+#define ENABLE_UNIT_TESTS 0
+
+#if ENABLE_UNIT_TESTS
+
+#include "test\runner.cpp"
+
+#else
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
@@ -8,3 +16,5 @@ int main(int argc, char *argv[])
     w.show();
     return a.exec();
 }
+
+#endif

@@ -3,14 +3,24 @@
 
 #include <QString>
 #include <QHash>
+#include <QList>
+#include <QFileInfo>
 
 struct ExtensionInfo {
 	QString name;
 	uint filesCount;
 	qint64 sizeBytes;
+
+	inline qint64 getAvgFileSize() {
+		return filesCount > 0 ? sizeBytes / filesCount : 0;
+	}
+
+	static QString parseExtension(const QFileInfo& file);
 };
 
 using ExtensionInfoHash = QHash<QString, ExtensionInfo>;
+
+using ExtensionInfoList = QList<ExtensionInfo>;
 
 inline bool operator==(const ExtensionInfo &e1, const ExtensionInfo &e2)
 {
