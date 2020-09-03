@@ -1,0 +1,4 @@
+<RCC>
+    <qresource prefix="FileSystemStatisticsWindow">
+    </qresource>
+</RCC>
