@@ -4,7 +4,7 @@
 #include <QString>
 #include <QObject>
 
-enum class OperationStatus { WAITING, PROCESSING, DONE };
+enum class OperationStatus { WAITING, PROCESSING, STOPPING, DONE };
 
 QString toString(OperationStatus status);
 

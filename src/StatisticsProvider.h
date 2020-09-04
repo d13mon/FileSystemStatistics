@@ -27,7 +27,10 @@ signals:
 	void currentProcessedDirChanged(const QString & dirPath);
 	void subdirsCountReceived(uint count);
 	void extensionsInfoUpdated(const ExtensionInfoList& extInfoList);
-	void scanFinished();
+
+	void scanStarted();
+	void scanStopped();
+	void scanFinished();	
 
 private:
 	DirectoryScanner*    mDirectoryScanner = nullptr;	

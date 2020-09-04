@@ -42,12 +42,16 @@ void StatisticsProvider::start(const QFileInfo& dirInfo)
 	connect(mDirectoryScanner, &DirectoryScanner::finished,
 		this, &StatisticsProvider::scanFinished, Qt::QueuedConnection);
 
+	emit scanStarted();
+
 	QThreadPool::globalInstance()->start(mDirectoryScanner);
 }	
 
 void StatisticsProvider::stop()
 {	
 	qDebug() << TAG << "STOP";
+
+	emit scanStopped();
 
 	if (mDirectoryScanner)
 	{

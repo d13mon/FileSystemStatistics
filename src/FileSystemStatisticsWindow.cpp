@@ -48,6 +48,15 @@ void FileSystemStatisticsWindow::initStatisticsProvider()
 	connect(mStatisticsProvider, &StatisticsProvider::extensionsInfoUpdated,
 		this, &FileSystemStatisticsWindow::onExtensionsInfoUpdated);
 
+	connect(mStatisticsProvider, &StatisticsProvider::scanStarted, [this] {
+		updateStatus(OperationStatus::PROCESSING);		
+	});
+
+	connect(mStatisticsProvider, &StatisticsProvider::scanStopped, [this] {
+		updateStatus(OperationStatus::STOPPING);
+		clearStatus();
+	});
+
 	connect(mStatisticsProvider, &StatisticsProvider::scanFinished, [this]{
 		updateStatus(OperationStatus::DONE);
 		clearStatus();
@@ -77,6 +86,7 @@ void FileSystemStatisticsWindow::initWidgets()
 	ui.statisticsTable->setModel(mStatisticsModel);
 	ui.statisticsTable->horizontalHeader()->resizeSection(StatisticsTableModel::Columns::ColFilesSize, 200);
 	ui.statisticsTable->horizontalHeader()->resizeSection(StatisticsTableModel::Columns::ColAvgFileSize, 200);
+	ui.statisticsTable->horizontalHeader()->setStyleSheet("font: bold");
 
 	QSplitter * splitterStatistics{ new QSplitter(Qt::Horizontal, this) };
 	splitterStatistics->setContentsMargins(0, 0, 0, 0);
@@ -97,7 +107,7 @@ void FileSystemStatisticsWindow::initWidgets()
 
 	QSplitter * splitterMain{ new QSplitter(Qt::Horizontal, this) };
 	splitterMain->setContentsMargins(5, 5, 5, 5);
-	splitterMain->addWidget(ui.filesystemTree);
+	splitterMain->addWidget(ui.filesystemFrame);
 	splitterMain->addWidget(ui.statisticsGroup);
 	splitterMain->setStretchFactor(0, 3);
 	splitterMain->setStretchFactor(1, 3);
@@ -107,8 +117,7 @@ void FileSystemStatisticsWindow::initWidgets()
 
 void FileSystemStatisticsWindow::startScan(const QFileInfo & dirInfo)
 {
-	clear();
-	updateStatus(OperationStatus::PROCESSING);	
+	clear();	
 	ui.statisticsDirectoryLabel->setText("<b>" + dirInfo.absoluteFilePath() + "</b>");
 	mStatisticsProvider->start(dirInfo);
 }
@@ -116,11 +125,7 @@ void FileSystemStatisticsWindow::startScan(const QFileInfo & dirInfo)
 void FileSystemStatisticsWindow::updateStatus(OperationStatus status)
 {
 	mStatus = status;
-	ui.statusOperationEdit->setText(toString(mStatus));	
-
-	if (status == OperationStatus::WAITING) {
-		ui.statisticsDirectoryLabel->setText(toString(OperationStatus::WAITING));
-	}
+	ui.statusOperationEdit->setText(toString(mStatus));		
 }
 
 void FileSystemStatisticsWindow::onExtensionsInfoUpdated(const ExtensionInfoList& extInfoList)
@@ -142,7 +147,7 @@ void FileSystemStatisticsWindow::clearStatistics()
 	ui.statisticsSubdirsEdit->setText("0");
 	ui.statisticsExtensionsEdit->setText("0");
 	ui.statisticsLogEdit->clear();
-	ui.statisticsDirectoryLabel->setText(toString(OperationStatus::WAITING));
+	ui.statisticsDirectoryLabel->clear();
 }
 
 void FileSystemStatisticsWindow::clearStatus()
