@@ -1,6 +1,8 @@
 #ifndef STATISTICS_PROVIDER_H
 #define STATISTICS_PROVIDER_H
 
+#include "ExtensionInfo.h"
+
 #include <QObject>
 #include <QFileInfo>
 
@@ -16,9 +18,22 @@ public:
 
 	void start(const QFileInfo& dirInfo);
 	void stop();
-private:
-	DirectoryScanner* mDirectoryScanner = nullptr;
 
+	ExtensionInfoList getExtensionsInfo() const;
+
+	uint getSubdirsCount() const;
+
+signals:
+	void currentProcessedDirChanged(const QString & dirPath);
+	void subdirsCountReceived(uint count);
+	void extensionsInfoUpdated(const ExtensionInfoList& extInfoList);
+	void scanFinished();
+
+private:
+	DirectoryScanner*    mDirectoryScanner = nullptr;	
+	uint                 mSubdirsCount = 0;
+	ExtensionInfoList    mExtensionsInfoList;
+	
 	static const QString TAG;
 };
 

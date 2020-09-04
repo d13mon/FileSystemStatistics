@@ -8,18 +8,20 @@
 
 struct ExtensionInfo {
 	QString name;
-	uint filesCount;
-	qint64 sizeBytes;
+	uint filesCount = 0;
+	qint64 sizeBytes = 0;	
+	
+	static const QString TOTAL_KEY;
 
 	inline qint64 getAvgFileSize() {
-		return filesCount > 0 ? sizeBytes / filesCount : 0;
-	}
+		return filesCount > 0 ? (sizeBytes / filesCount) : 0;
+	}	
 
 	static QString parseExtension(const QFileInfo& file);
 };
 
-using ExtensionInfoHash = QHash<QString, ExtensionInfo>;
 
+using ExtensionInfoHash = QHash<QString, ExtensionInfo>;
 using ExtensionInfoList = QList<ExtensionInfo>;
 
 inline bool operator==(const ExtensionInfo &e1, const ExtensionInfo &e2)

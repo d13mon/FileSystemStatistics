@@ -26,6 +26,22 @@ void StatisticsProvider::start(const QFileInfo& dirInfo)
 	mDirectoryScanner = new DirectoryScanner(dirInfo);	
 	mDirectoryScanner->setAutoDelete(false);
 
+	connect(mDirectoryScanner, &DirectoryScanner::currentProcessedDirChanged, 
+		this, &StatisticsProvider::currentProcessedDirChanged, Qt::QueuedConnection);	
+
+	connect(mDirectoryScanner, &DirectoryScanner::subdirsCountReceived, this, [this](uint count) {
+		mSubdirsCount = count;
+		emit subdirsCountReceived(mSubdirsCount);
+	}, Qt::QueuedConnection); 
+
+	connect(mDirectoryScanner, &DirectoryScanner::extensionsInfoUpdated, this, [this](const ExtensionInfoList& extInfoList) {
+		mExtensionsInfoList = extInfoList;
+		emit extensionsInfoUpdated(mExtensionsInfoList);
+	}, Qt::QueuedConnection);
+
+	connect(mDirectoryScanner, &DirectoryScanner::finished,
+		this, &StatisticsProvider::scanFinished, Qt::QueuedConnection);
+
 	QThreadPool::globalInstance()->start(mDirectoryScanner);
 }	
 
@@ -48,5 +64,18 @@ void StatisticsProvider::stop()
 	qDebug() << TAG << "WAIT FOR DONE finished";
 	
 	delete mDirectoryScanner;
-	mDirectoryScanner = nullptr;			
+	mDirectoryScanner = nullptr;		
 }
+
+ExtensionInfoList StatisticsProvider::getExtensionsInfo() const
+{
+	return mExtensionsInfoList;
+}
+
+uint StatisticsProvider::getSubdirsCount() const
+{
+	return mSubdirsCount;
+}
+
+
+

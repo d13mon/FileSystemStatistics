@@ -15,18 +15,29 @@ class FileSystemStatisticsWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    FileSystemStatisticsWindow(QWidget *parent = Q_NULLPTR);
+    FileSystemStatisticsWindow(QWidget *parent = Q_NULLPTR);	
 	virtual ~FileSystemStatisticsWindow();
+
+public slots:
+	
+	void startScan(const QFileInfo & dirInfo);
+	
+	void clear();	
+
 private:
 	void initWidgets();
+	void initStatisticsProvider();
+	
+	void clearStatistics();
+	void clearStatus();
 
 	void updateStatus(OperationStatus status);
 
-public slots:
+	inline uint maxScanStatusMessageCount() const { return 10; }
 
-	void clearStatistics();
-	void clearStatus();
-	void clear();
+private slots:	
+
+	void onExtensionsInfoUpdated(const ExtensionInfoList& extInfoList);
 
 protected: 
 	virtual void closeEvent(QCloseEvent* event) override;
@@ -35,13 +46,13 @@ protected:
 private:
     Ui::FileSystemStatisticsWindowClass ui;
 
-	QFileSystemModel* mFilesystemModel = nullptr;
+	QFileSystemModel*                   mFilesystemModel = nullptr;
 
-	OperationStatus mStatus = OperationStatus::WAITING;
+	OperationStatus                     mStatus = OperationStatus::WAITING;
 
-	StatisticsProvider* mStatisticsProvider = nullptr;
+	StatisticsProvider*                 mStatisticsProvider = nullptr;
 
-	StatisticsTableModel* mStatisticsModel = nullptr;
+	StatisticsTableModel*               mStatisticsModel = nullptr;	
 };
 
 #endif // FILE_SYSTEM_STATISTICS_WINDOW_H

@@ -11,6 +11,10 @@
 
 int main(int argc, char *argv[])
 {
+	qRegisterMetaType<ExtensionInfo>("ExtensionInfo");
+	qRegisterMetaType<ExtensionInfoList>("ExtensionInfoList");
+	qRegisterMetaType<ExtensionInfoHash>("ExtensionInfoHash");
+
     QApplication a(argc, argv);
     FileSystemStatisticsWindow w;
     w.show();

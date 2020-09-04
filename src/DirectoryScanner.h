@@ -27,18 +27,32 @@ signals:
 
 	void currentProcessedDirChanged(const QString & dirPath);	
 
+	void subdirsCountReceived(uint count);	
+
+	void extensionsInfoUpdated(const ExtensionInfoList& extInfoList);
+
+	void finished();	
+
+private slots:
+	void updateExtensionsInfo(const ExtensionInfoHash& extInfoHash);
+
+	void sendExtensionInfo();
+
 private:
 
 	void scan(const QFileInfo& dirInfo);
 
+	uint getSubdirsCount(const QFileInfo& dirInfo);
+
 private:
-	QFileInfo mDirInfo;
+	QFileInfo             mDirInfo;
 
-	std::atomic_bool mStopped{ false };
+	std::atomic_bool      mStopped{ false };
 
-	//ExtensionInfoHash mExtensionsInfoList;
+	ExtensionInfoHash     mExtensionsInfoHash;
+	ExtensionInfo         mTotalExtensionInfo;
 
-	static const QString TAG;
+	static const QString  TAG;
 };
 
 #endif

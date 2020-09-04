@@ -28,7 +28,7 @@ public:
 
     int getRowCount() const;
 
-    bool update(int modeIndex);  
+    void updateData(const ExtensionInfoList statsList);  
 
 private:
 

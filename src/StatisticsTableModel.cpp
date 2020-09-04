@@ -7,7 +7,7 @@ const QString StatisticsTableModel::TAG = "StatisticsTableModel:";
 StatisticsTableModel::StatisticsTableModel(QObject *parent)
     : QAbstractTableModel(parent)
 {   
-	//dbgFill();
+	
 }
 
 QVariant StatisticsTableModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -101,19 +101,17 @@ QVariant StatisticsTableModel::data(const QModelIndex &index, int role) const
     return QString();
 }
 
-bool StatisticsTableModel::update(int modeIndex)
+void StatisticsTableModel::updateData(const ExtensionInfoList statsList)
 {
-    //clear();
+    clear();
 
-	//beginInsertRows(QModelIndex(), 0, scores.size());
+	beginInsertRows(QModelIndex(), 0, statsList.size());
 
-	//std::copy(std::begin(scores), std::end(scores), std::back_inserter(scores_));
+	mStatsList = statsList;
 
-	//endInsertRows();
+	endInsertRows();
 
-	//emit dataChanged(createIndex(0, 0), createIndex(getRowCount() - 1, columnCount() - 1));    
-
-    return true;
+	emit dataChanged(createIndex(0, 0), createIndex(getRowCount() - 1, columnCount() - 1));       
 }
 
 void StatisticsTableModel::clear()
@@ -125,11 +123,6 @@ void StatisticsTableModel::clear()
 	endResetModel();	  
 }
 
-void StatisticsTableModel::dbgFill()
-{
-	mStatsList.push_back({ "txt", 45, 4565435 });
-	mStatsList.push_back({ "exe", 5, 4554});
-	mStatsList.push_back({ "zip", 58, 5676797896 });
-}
+
 
 
