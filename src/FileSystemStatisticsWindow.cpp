@@ -150,6 +150,8 @@ void FileSystemStatisticsWindow::updateExtensionsCount(uint count)
 
 void FileSystemStatisticsWindow::startUpdateStatisticsTimer()
 {
+	qDebug() << TAG << "START TIMER";
+
 	if (!mUpdateStatisticsTimerId) {
          mUpdateStatisticsTimerId = startTimer(updateStatisticsInterval());
 	}	
@@ -157,6 +159,8 @@ void FileSystemStatisticsWindow::startUpdateStatisticsTimer()
 
 void FileSystemStatisticsWindow::stopUpdateStatisticsTimer()
 {
+	qDebug() << TAG << "STOP TIMER";
+
 	if (mUpdateStatisticsTimerId) {
 		killTimer(mUpdateStatisticsTimerId);
 		mUpdateStatisticsTimerId = 0;
@@ -203,7 +207,7 @@ void FileSystemStatisticsWindow::timerEvent(QTimerEvent* event)
 
 void FileSystemStatisticsWindow::updateStatisticsModelData(const ExtensionsTotalInfo& extInfo)
 {
-	if (auto &[dirPath, total, list] = extInfo;
+	if (auto & [dirPath, total, list] = extInfo;
 		!dirPath.isEmpty() && dirPath == mStatisticsProvider->getCurrentDirPath()) {		
 		mStatisticsModel->mergeExtensionsData(extInfo);
 	}

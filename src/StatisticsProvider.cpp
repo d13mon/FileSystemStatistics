@@ -40,17 +40,15 @@ void StatisticsProvider::start(const QFileInfo& dirInfo)
 		this, &StatisticsProvider::extensionsInfoAvailable, Qt::QueuedConnection);
 
 	connect(mDirectoryScanner, &DirectoryScanner::finished,
-		this, &StatisticsProvider::scanFinished, Qt::QueuedConnection);
-
-	emit scanStarted();
+		this, &StatisticsProvider::scanFinished, Qt::QueuedConnection);	
 
 	QThreadPool::globalInstance()->start(mDirectoryScanner);
+	
+	emit scanStarted();
 }	
 
 void StatisticsProvider::stop()
 {	
-	emit scanStopped();
-
 	if (mDirectoryScanner)
 	{
         mDirectoryScanner->stop();		
@@ -61,7 +59,9 @@ void StatisticsProvider::stop()
 	qDebug() << TAG << "WAIT FOR DONE finished";
 	
 	delete mDirectoryScanner;
-	mDirectoryScanner = nullptr;		
+	mDirectoryScanner = nullptr;	
+	
+	emit scanStopped();	
 }
 
 ExtensionsTotalInfo StatisticsProvider::fetchExtensionsInfo() const

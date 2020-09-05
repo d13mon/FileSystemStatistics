@@ -144,8 +144,6 @@ void StatisticsTableModel::addExtensionInfo(const ExtensionInfo& extInfo)
 	auto ipos = std::lower_bound(std::begin(mExtensionsInfoList), std::end(mExtensionsInfoList), extInfo);	
 
 	//qDebug() << TAG << "----->ENTER ADD EXT INFO: " << extInfo.name << " Files = " << extInfo.filesCount << " ROWS = " << rowCount();
-	
-	int index = 0;
 
 	if (ipos != std::end(mExtensionsInfoList)) {
 		
@@ -169,7 +167,7 @@ void StatisticsTableModel::addExtensionInfo(const ExtensionInfo& extInfo)
 	}
 	else {
 		//NOTE: TOTAL info is always on first row (index = 0)
-		index = mExtensionsInfoList.size() + 1;
+		int index = mExtensionsInfoList.size() + 1;
 		
 	//	qDebug() << TAG << "ADDED BACK(" << index  << "): " << extInfo.name << " Files = " << extInfo.filesCount;
 
@@ -177,9 +175,7 @@ void StatisticsTableModel::addExtensionInfo(const ExtensionInfo& extInfo)
 		mExtensionsInfoList.push_back(extInfo);
 		endInsertRows();
 		
-	}	
-
-	//emit dataChanged(createIndex(index, 0), createIndex(index, columnCount() - 1));
+	}		
 
 	//qDebug() << TAG << "<------EXIT ADD EXT INFO: " << extInfo.name << " ROWS = " << rowCount() << " Extensions = " << extensionsCount();
 	
@@ -197,7 +193,7 @@ void StatisticsTableModel::setTotalExtensionInfo(const ExtensionInfo& extInfo)
 		return;
 	}
 
-	qDebug() << TAG << "TOTAL UPDATED: " << extInfo.name << " Files = " << extInfo.filesCount;
+	//qDebug() << TAG << "TOTAL UPDATED: " << extInfo.name << " Files = " << extInfo.filesCount;
 
 	mTotalExtensionInfo = extInfo;
 }

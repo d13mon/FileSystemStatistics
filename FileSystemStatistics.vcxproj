@@ -18,7 +18,6 @@
     <ClCompile Include="src\StatisticsProvider.cpp" />
     <ClCompile Include="src\StatisticsTableModel.cpp" />
     <ClCompile Include="src\StatusInfo.cpp" />
-    <ClCompile Include="src\test\TestExtensionInfo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="FileSystemStatisticsWindow.qrc" />
@@ -31,7 +30,6 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\StatisticsTableModel.h" />
-    <ClInclude Include="src\test\TestExtensionInfo.h" />
     <QtMoc Include="src\StatisticsProvider.h" />
     <QtMoc Include="src\DirectoryScanner.h" />
     <ClInclude Include="src\ExtensionInfo.h" />

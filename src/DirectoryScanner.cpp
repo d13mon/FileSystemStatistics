@@ -39,7 +39,9 @@ void DirectoryScanner::run()
 		sendExtensionInfo();
 	}
 
-	emit finished();
+	if (!mStopped) {
+        emit finished();
+	}	
 
 	qDebug() << TAG << "RUN EXIT: dir = " << mDirInfo.absoluteFilePath() << " STOPPED = " << mStopped;
 }
@@ -159,7 +161,7 @@ uint DirectoryScanner::getRealShortcutFileSize(const QFileInfo& fileInfo)
 	uint size = 0;
 	QFile file(fileInfo.absoluteFilePath());
 	if (file.exists() && file.open(QIODevice::ReadOnly)) {
-		//NOTE: Now the filesize shows correctly
+		//NOTE: Now the file size shows correctly
 		size = file.size();
 		file.close();
 	}

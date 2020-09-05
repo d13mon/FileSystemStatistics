@@ -1,14 +1,6 @@
 #include "FileSystemStatisticsWindow.h"
 #include <QtWidgets/QApplication>
 
-#define ENABLE_UNIT_TESTS 0
-
-#if ENABLE_UNIT_TESTS
-
-#include "test\runner.cpp"
-
-#else
-
 int main(int argc, char *argv[])
 {
 	qRegisterMetaType<ExtensionInfo>("ExtensionInfo");
@@ -22,4 +14,4 @@ int main(int argc, char *argv[])
     return a.exec();
 }
 
-#endif
+
