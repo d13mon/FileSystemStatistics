@@ -45,7 +45,7 @@ signals:
 private slots:
 	void updateExtensionsInfo(const ExtensionInfoHash& extInfoHash);
 
-	void sendExtensionInfo();
+	void sendExtensionsInfo();
 
 private:
 

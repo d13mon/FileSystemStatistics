@@ -32,7 +32,7 @@ FileSystemStatisticsWindow::FileSystemStatisticsWindow(QWidget *parent)
 
 	updateStatus(OperationStatus::WAITING);	
 
-	connect(ui.filesystemTree, &QTreeView::activated, [this](const QModelIndex& index) {		
+	connect(ui.filesystemTree, &QTreeView::clicked, [this](const QModelIndex& index) {		
 		auto fi = mFilesystemModel->fileInfo(index);
 		if (fi.isDir()) {
 			startScan(fi);
@@ -89,6 +89,7 @@ void FileSystemStatisticsWindow::initWidgets()
 	menuBar()->hide();
 	ui.mainToolBar->hide();
 	ui.statisticsLogEdit->hide();
+	ui.filesystemTreeHintLabel->hide();
 
 	ui.filesystemTree->setModel(mFilesystemModel);
 	ui.filesystemTree->setColumnWidth(0, 250);		
@@ -197,19 +198,19 @@ void FileSystemStatisticsWindow::onExtensionsInfoAvailable(const ExtensionsTotal
 	updateStatisticsModelData(extInfo);
 }
 
-void FileSystemStatisticsWindow::timerEvent(QTimerEvent* event)
-{
-	if (event->timerId() == mUpdateStatisticsTimerId) {		
-		auto extInfo = mStatisticsProvider->fetchExtensionsInfo();
-		updateStatisticsModelData(extInfo);
-	}
-}
-
 void FileSystemStatisticsWindow::updateStatisticsModelData(const ExtensionsTotalInfo& extInfo)
 {
 	if (auto & [dirPath, total, list] = extInfo;
 		!dirPath.isEmpty() && dirPath == mStatisticsProvider->getCurrentDirPath()) {		
 		mStatisticsModel->mergeExtensionsData(extInfo);
+	}
+}
+
+void FileSystemStatisticsWindow::timerEvent(QTimerEvent* event)
+{
+	if (event->timerId() == mUpdateStatisticsTimerId) {		
+		auto extInfo = mStatisticsProvider->fetchExtensionsInfo();
+		updateStatisticsModelData(extInfo);
 	}
 }
 

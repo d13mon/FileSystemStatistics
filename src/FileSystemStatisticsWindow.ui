@@ -246,7 +246,7 @@
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
-      <widget class="QLabel" name="label_4">
+      <widget class="QLabel" name="filesystemTreeHintLabel">
        <property name="text">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; color:#0055ff;&quot;&gt;Select any directory by &lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; color:#aa0000;&quot;&gt;DOUBLE CLICK &lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; color:#0055ff;&quot;&gt;on it.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>

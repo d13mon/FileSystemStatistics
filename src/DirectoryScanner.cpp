@@ -24,26 +24,20 @@ QFileInfo DirectoryScanner::getDir() const
 
 void DirectoryScanner::run()
 {
-	qDebug() << TAG << "RUN ENTER: dir =" << mDirInfo.absoluteFilePath();
-
-	if (!mDirInfo.isDir())
-		return;
-
+	qInfo() << TAG << "RUN ENTER: dir =" << mDirInfo.absoluteFilePath() << " | is_dir = " << mDirInfo.isDir();		
+	
 	if (auto subdirsCount = getSubdirsCount(mDirInfo); subdirsCount != 0) {
 		emit subdirsCountReceived(subdirsCount);
 	}
 	
 	scan(mDirInfo);	
 
-	if (!mStopped && !mExtensionsInfoHash.empty()) {
-		sendExtensionInfo();
-	}
-
 	if (!mStopped) {
-        emit finished();
+		sendExtensionsInfo();
+		emit finished();
 	}	
 
-	qDebug() << TAG << "RUN EXIT: dir = " << mDirInfo.absoluteFilePath() << " STOPPED = " << mStopped;
+	qInfo() << TAG << "RUN EXIT: dir = " << mDirInfo.absoluteFilePath() << " STOPPED = " << mStopped;
 }
 
 void DirectoryScanner::stop()
@@ -53,7 +47,7 @@ void DirectoryScanner::stop()
 
 void DirectoryScanner::scan(const QFileInfo& dirInfo)
 {
-	if (mStopped || !dirInfo.isDir())
+	if (mStopped)
 		return;	
 
 	QDir dir(dirInfo.absoluteFilePath());
@@ -70,6 +64,8 @@ void DirectoryScanner::scan(const QFileInfo& dirInfo)
 
 	//DBG
 	//qDebug() << TAG << "FilesInfo Count = " << files.size();
+
+	//qInfo() << TAG << "SCAN ENTER: DIR = " << dirInfo.absoluteFilePath();
 
 	for (QFileInfo fi : files) {
 		if (mStopped)
@@ -98,9 +94,40 @@ void DirectoryScanner::scan(const QFileInfo& dirInfo)
 		}		
 	}
 
+	//qInfo() << TAG << "SCAN EXIT: DIR = " << dirInfo.absoluteFilePath() << " | results ready: size = " << extInfoHash.size();
+
 	if (!extInfoHash.isEmpty()) {
 		updateExtensionsInfo(extInfoHash);
 	}	
+}
+
+uint DirectoryScanner::getSubdirsCount(const QFileInfo& dirInfo)
+{
+	if (!dirInfo.isDir())
+		return 0;
+
+	QDir dir(dirInfo.absoluteFilePath());
+	if (!dir.exists()) {
+		qWarning() << tr("The directory is not exists: ") << dirInfo.absoluteFilePath();
+		return 0;
+	}
+
+	QFileInfoList dirs = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden);
+
+	return dirs.count();
+}
+
+uint DirectoryScanner::getRealShortcutFileSize(const QFileInfo& fileInfo)
+{
+	uint size = 0;
+	QFile file(fileInfo.absoluteFilePath());
+	if (file.exists() && file.open(QIODevice::ReadOnly)) {
+		//NOTE: Now the file size shows correctly
+		size = file.size();
+		file.close();
+	}
+
+	return size;
 }
 
 void DirectoryScanner::updateExtensionsInfo(const ExtensionInfoHash& extInfoHash)
@@ -134,51 +161,30 @@ void DirectoryScanner::updateExtensionsInfo(const ExtensionInfoHash& extInfoHash
 	}		
 }
 
-void DirectoryScanner::sendExtensionInfo()
+void DirectoryScanner::sendExtensionsInfo()
 {
-	auto infoList = mExtensionsInfoHash.values();	
-	emit extensionsInfoAvailable({ mDirInfo.absoluteFilePath(), mTotalExtensionInfo, infoList });
-}
-
-uint DirectoryScanner::getSubdirsCount(const QFileInfo& dirInfo)
-{
-	if (!dirInfo.isDir())
-		return 0;
-
-	QDir dir(dirInfo.absoluteFilePath());
-	if (!dir.exists()) {
-		qWarning() << tr("The directory is not exists: ") << dirInfo.absoluteFilePath();
-		return 0;
+	std::scoped_lock lock(mExtensionsInfoMutex);
+	if (!mExtensionsInfoHash.empty()) {
+		auto infoList = mExtensionsInfoHash.values();
+		emit extensionsInfoAvailable({ mDirInfo.absoluteFilePath(), mTotalExtensionInfo, infoList });
 	}
-
-	QFileInfoList dirs = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden);
-	
-	return dirs.count();
-}
-
-uint DirectoryScanner::getRealShortcutFileSize(const QFileInfo& fileInfo)
-{
-	uint size = 0;
-	QFile file(fileInfo.absoluteFilePath());
-	if (file.exists() && file.open(QIODevice::ReadOnly)) {
-		//NOTE: Now the file size shows correctly
-		size = file.size();
-		file.close();
-	}
-
-	return size;
 }
 
 ExtensionsTotalInfo DirectoryScanner::fetchExtensionsInfo()
 {
 	std::scoped_lock lock(mExtensionsInfoMutex);
 
-	auto infoList = mExtensionsInfoHash.values();	
+//	qInfo() << TAG << "FETCH DATA: size =" << mExtensionsInfoHash.size();
+
+	auto infoList = mExtensionsInfoHash.values();
 
 	mExtensionsInfoHash.clear();
 
 	return { mDirInfo.absoluteFilePath(), mTotalExtensionInfo, std::move(infoList) };
 }
+
+
+
 
 
 

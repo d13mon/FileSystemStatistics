@@ -84,12 +84,30 @@
       <Command>
       </Command>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>copy "$(QTDIR)\bin\Qt5Cored.dll" "$(SolutionDir)build\$(Configuration)"
+copy "$(QTDIR)\bin\Qt5Guid.dll" "$(SolutionDir)build\$(Configuration)"
+copy "$(QTDIR)\bin\Qt5Widgetsd.dll" "$(SolutionDir)build\$(Configuration)"
+mkdir "$(SolutionDir)build\$(Configuration)\platforms" 2&gt; NUL
+copy "$(QTDIR)\plugins\platforms\qwindowsd.dll" "$(SolutionDir)build\$(Configuration)\platforms"
+mkdir "$(SolutionDir)build\$(Configuration)\styles" 2&gt; NUL
+copy "$(QTDIR)\plugins\styles\qwindowsvistastyled.dll" "$(SolutionDir)build\$(Configuration)\styles"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>src;.\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <PostBuildEvent>
+      <Command>copy "$(QTDIR)\bin\Qt5Core.dll" "$(SolutionDir)build\$(Configuration)"
+copy "$(QTDIR)\bin\Qt5Gui.dll" "$(SolutionDir)build\$(Configuration)"
+copy "$(QTDIR)\bin\Qt5Widgets.dll" "$(SolutionDir)build\$(Configuration)"
+mkdir "$(SolutionDir)build\$(Configuration)\platforms" 2&gt; NUL
+copy "$(QTDIR)\plugins\platforms\qwindows.dll" "$(SolutionDir)build\$(Configuration)\platforms"
+mkdir "$(SolutionDir)build\$(Configuration)\styles" 2&gt; NUL
+copy "$(QTDIR)\plugins\styles\qwindowsvistastyle.dll" "$(SolutionDir)build\$(Configuration)\styles"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
     <QtInstall>Qt64</QtInstall>

@@ -56,12 +56,15 @@ void StatisticsProvider::stop()
 
 	while (!QThreadPool::globalInstance()->waitForDone());
 
-	qDebug() << TAG << "WAIT FOR DONE finished";
+	//Q_ASSERT(QThreadPool::globalInstance()->activeThreadCount() == 0);
+
+	qInfo() << TAG << "WAIT FOR DONE finished : active Threads = " 
+		<< QThreadPool::globalInstance()->activeThreadCount();
 	
 	delete mDirectoryScanner;
 	mDirectoryScanner = nullptr;	
 	
-	emit scanStopped();	
+	emit scanStopped();		
 }
 
 ExtensionsTotalInfo StatisticsProvider::fetchExtensionsInfo() const
