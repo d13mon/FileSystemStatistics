@@ -24,24 +24,30 @@ public slots:
 	
 	void clear();	
 
+private slots:	
+
+	void onExtensionsInfoAvailable(const ExtensionsTotalInfo& extInfo);
+	
+	void updateExtensionsCount(uint count);
+
 private:
 	void initWidgets();
 	void initStatisticsProvider();
-	
+
 	void clearStatistics();
 	void clearStatus();
 
-	void updateStatus(OperationStatus status);
+	void updateStatus(OperationStatus status);	
 
-	inline uint maxScanStatusMessageCount() const { return 10; }
+	void startUpdateStatisticsTimer();
+	void stopUpdateStatisticsTimer();
 
-private slots:	
-
-	void onExtensionsInfoUpdated(const ExtensionInfoList& extInfoList);
+	static std::chrono::milliseconds updateStatisticsTime();	
 
 protected: 
 	virtual void closeEvent(QCloseEvent* event) override;
 	virtual void keyPressEvent(QKeyEvent* event) override;
+	virtual void timerEvent(QTimerEvent* event) override;
 
 private:
     Ui::FileSystemStatisticsWindowClass ui;
@@ -53,6 +59,10 @@ private:
 	StatisticsProvider*                 mStatisticsProvider = nullptr;
 
 	StatisticsTableModel*               mStatisticsModel = nullptr;	
+
+	int                                 mUpdateStatisticsTimerId = 0;
+
+	static const QString                TAG;
 };
 
 #endif // FILE_SYSTEM_STATISTICS_WINDOW_H

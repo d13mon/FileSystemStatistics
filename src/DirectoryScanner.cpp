@@ -23,8 +23,8 @@ QFileInfo DirectoryScanner::getDir() const
 }
 
 void DirectoryScanner::run()
-{	
-	qDebug() << TAG << "Enter THREAD";
+{
+	qDebug() << TAG << "RUN ENTER";
 
 	if (!mDirInfo.isDir())
 		return;
@@ -35,9 +35,13 @@ void DirectoryScanner::run()
 	
 	scan(mDirInfo);	
 
-	qDebug() << TAG  << " EXIT THREAD";
+	if (!mExtensionsInfoHash.empty()) {
+		sendExtensionInfo();
+	}
 
 	emit finished();
+
+	qDebug() << TAG << "RUN EXIT";
 }
 
 void DirectoryScanner::stop()
@@ -58,16 +62,16 @@ void DirectoryScanner::scan(const QFileInfo& dirInfo)
 
 	emit currentProcessedDirChanged(dirInfo.absoluteFilePath());
 
-//	qDebug() << TAG << "__SCAN DIR_____: " <<  dirInfo.absoluteFilePath();
-
 	ExtensionInfoHash extInfoHash;
 
-	QFileInfoList files = dir.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
+	QFileInfoList files = dir.entryInfoList(filesystemScanFilter());
+
+	//DBG
+	//qDebug() << TAG << "FilesInfo Count = " << files.size();
+
 	for (QFileInfo fi : files) {
 		if (mStopped)
-			return;		
-
-		//qDebug() << fi.absoluteFilePath();
+			return;				
 
 		if (fi.isDir()) {
 			scan(fi);
@@ -75,9 +79,7 @@ void DirectoryScanner::scan(const QFileInfo& dirInfo)
 		}			
 		
 		auto ext = ExtensionInfo::parseExtension(fi);
-		auto size = fi.size();	
-
-		//qDebug() << fi.absoluteFilePath() << "EXT = " << ext << "SIZE = " + size;
+		auto size = fi.size();		
 
 		if (!extInfoHash.contains(ext)) {
 			extInfoHash[ext] = { ext, 1, size };
@@ -106,6 +108,8 @@ void DirectoryScanner::updateExtensionsInfo(const ExtensionInfoHash& extInfoHash
 		auto key = i.key();	
 		auto newExtInfo = i.value();	
 
+		std::scoped_lock lock(mExtensionsInfoMutex);
+
 		if (!mExtensionsInfoHash.contains(key)) {
 			mExtensionsInfoHash[key] = i.value();
 		}
@@ -120,24 +124,18 @@ void DirectoryScanner::updateExtensionsInfo(const ExtensionInfoHash& extInfoHash
 		}
 		
 		mTotalExtensionInfo.filesCount += newExtInfo.filesCount;
+
+		//DBG
+	//	qDebug() << TAG << "TOTAL_FILES_COUNT = " << mTotalExtensionInfo.filesCount;
+
 		mTotalExtensionInfo.sizeBytes += newExtInfo.sizeBytes;
-	}	
-
-	//DBG
-	//QHashIterator<QString, ExtensionInfo> i2(mExtensionsTotalInfoHash);
-	//while (i2.hasNext()) {
-	//	i2.next();
-	//	qDebug() << i2.key() << ": COUNT = " << i2.value().filesCount << " SIZE = " << i2.value().sizeBytes << Qt::endl;
-	//}
-
-	sendExtensionInfo();
+	}		
 }
 
 void DirectoryScanner::sendExtensionInfo()
 {
-	auto infoList = mExtensionsInfoHash.values();
-	infoList.push_front(mTotalExtensionInfo);
-	emit extensionsInfoUpdated(infoList);
+	auto infoList = mExtensionsInfoHash.values();	
+	emit extensionsInfoAvailable({ mTotalExtensionInfo, infoList });
 }
 
 uint DirectoryScanner::getSubdirsCount(const QFileInfo& dirInfo)
@@ -151,9 +149,21 @@ uint DirectoryScanner::getSubdirsCount(const QFileInfo& dirInfo)
 		return 0;
 	}
 
-	QFileInfoList dirs = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+	QFileInfoList dirs = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden);
 	
 	return dirs.count();
+}
+
+ExtensionsTotalInfo DirectoryScanner::fetchExtensionsInfo()
+{
+	std::scoped_lock lock(mExtensionsInfoMutex);
+
+	auto infoList = mExtensionsInfoHash.values();
+	infoList.push_front(mTotalExtensionInfo);
+
+	mExtensionsInfoHash.clear();
+
+	return { mTotalExtensionInfo, std::move(infoList) };
 }
 
 

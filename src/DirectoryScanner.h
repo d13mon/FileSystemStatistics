@@ -7,7 +7,10 @@
 #include <QObject>
 #include <QRunnable>
 #include <QFileInfo>
+#include <QDir>
+
 #include <atomic>
+#include <mutex>
 
 class DirectoryScanner : public QObject, public QRunnable
 {
@@ -21,7 +24,13 @@ public:
 
 public:
     void run() override;
-	void stop();	
+	void stop();
+
+	ExtensionsTotalInfo fetchExtensionsInfo();
+
+	inline static QFlags<QDir::Filter> filesystemScanFilter() {
+		return QDir::AllEntries | QDir::NoDotAndDotDot | QDir::System | QDir::Hidden;
+	}	
 
 signals:
 
@@ -29,7 +38,7 @@ signals:
 
 	void subdirsCountReceived(uint count);	
 
-	void extensionsInfoUpdated(const ExtensionInfoList& extInfoList);
+	void extensionsInfoAvailable(const ExtensionsTotalInfo& extInfo);
 
 	void finished();	
 
@@ -49,6 +58,7 @@ private:
 
 	std::atomic_bool      mStopped{ false };
 
+	std::mutex            mExtensionsInfoMutex;
 	ExtensionInfoHash     mExtensionsInfoHash;
 	ExtensionInfo         mTotalExtensionInfo;
 

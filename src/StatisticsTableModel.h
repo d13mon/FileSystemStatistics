@@ -5,6 +5,8 @@
 
 #include <QAbstractTableModel>
 
+#include <deque>
+
 class StatisticsTableModel : public QAbstractTableModel
 {
     Q_OBJECT      
@@ -22,21 +24,27 @@ public:
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;    
 
-  public:  
+public:  
 
 	void clear();    
 
-    int getRowCount() const;
+	uint extensionsCount() const;  
 
-    void updateData(const ExtensionInfoList statsList);  
+	void mergeExtensionsData(const ExtensionsTotalInfo& extData );
 
-private:
-
-    void dbgFill();
-
-private:   
+signals:
    
-    ExtensionInfoList mStatsList;    
+	void extensionCountChanged(uint count);
+
+private:  
+
+	void addExtensionInfo(const ExtensionInfo& extInfo);
+	void setTotalExtensionInfo(const ExtensionInfo& extInfo);
+
+private:    
+  
+	ExtensionInfoList mExtensionsInfoList;
+	ExtensionInfo     mTotalExtensionInfo;
 
 	static const QString TAG;
 };

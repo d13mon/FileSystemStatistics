@@ -19,14 +19,14 @@ public:
 	void start(const QFileInfo& dirInfo);
 	void stop();
 
-	ExtensionInfoList getExtensionsInfo() const;
+	ExtensionsTotalInfo fetchExtensionsInfo() const;
 
 	uint getSubdirsCount() const;
 
 signals:
 	void currentProcessedDirChanged(const QString & dirPath);
 	void subdirsCountReceived(uint count);
-	void extensionsInfoUpdated(const ExtensionInfoList& extInfoList);
+	void extensionsInfoAvailable(const ExtensionsTotalInfo& extInfo);
 
 	void scanStarted();
 	void scanStopped();
@@ -34,8 +34,7 @@ signals:
 
 private:
 	DirectoryScanner*    mDirectoryScanner = nullptr;	
-	uint                 mSubdirsCount = 0;
-	ExtensionInfoList    mExtensionsInfoList;
+	uint                 mSubdirsCount = 0;	
 	
 	static const QString TAG;
 };

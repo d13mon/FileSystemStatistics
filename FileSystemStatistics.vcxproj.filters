@@ -29,9 +29,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\test\TestExtensionInfo.cpp">
       <Filter>Source Files\test</Filter>
     </ClCompile>
@@ -47,10 +44,13 @@
     <ClCompile Include="src\StatisticsProvider.cpp">
       <Filter>Backend</Filter>
     </ClCompile>
-    <ClCompile Include="src\StatisticsTableModel.cpp">
+    <ClCompile Include="src\StatusInfo.cpp">
+      <Filter>Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
       <Filter>UI</Filter>
     </ClCompile>
-    <ClCompile Include="src\StatusInfo.cpp">
+    <ClCompile Include="src\StatisticsTableModel.cpp">
       <Filter>Backend</Filter>
     </ClCompile>
   </ItemGroup>
@@ -66,10 +66,10 @@
     <QtMoc Include="src\FileSystemStatisticsWindow.h">
       <Filter>UI</Filter>
     </QtMoc>
-    <QtMoc Include="src\StatisticsTableModel.h">
-      <Filter>UI</Filter>
-    </QtMoc>
     <QtMoc Include="src\StatisticsProvider.h">
+      <Filter>Backend</Filter>
+    </QtMoc>
+    <QtMoc Include="src\StatisticsTableModel.h">
       <Filter>Backend</Filter>
     </QtMoc>
   </ItemGroup>

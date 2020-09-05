@@ -14,6 +14,7 @@ int main(int argc, char *argv[])
 	qRegisterMetaType<ExtensionInfo>("ExtensionInfo");
 	qRegisterMetaType<ExtensionInfoList>("ExtensionInfoList");
 	qRegisterMetaType<ExtensionInfoHash>("ExtensionInfoHash");
+	qRegisterMetaType<ExtensionsTotalInfo>("ExtensionsTotalInfo");
 
     QApplication a(argc, argv);
     FileSystemStatisticsWindow w;

@@ -34,10 +34,8 @@ void StatisticsProvider::start(const QFileInfo& dirInfo)
 		emit subdirsCountReceived(mSubdirsCount);
 	}, Qt::QueuedConnection); 
 
-	connect(mDirectoryScanner, &DirectoryScanner::extensionsInfoUpdated, this, [this](const ExtensionInfoList& extInfoList) {
-		mExtensionsInfoList = extInfoList;
-		emit extensionsInfoUpdated(mExtensionsInfoList);
-	}, Qt::QueuedConnection);
+	connect(mDirectoryScanner, &DirectoryScanner::extensionsInfoAvailable,
+		this, &StatisticsProvider::extensionsInfoAvailable, Qt::QueuedConnection);
 
 	connect(mDirectoryScanner, &DirectoryScanner::finished,
 		this, &StatisticsProvider::scanFinished, Qt::QueuedConnection);
@@ -49,8 +47,6 @@ void StatisticsProvider::start(const QFileInfo& dirInfo)
 
 void StatisticsProvider::stop()
 {	
-	qDebug() << TAG << "STOP";
-
 	emit scanStopped();
 
 	if (mDirectoryScanner)
@@ -58,12 +54,7 @@ void StatisticsProvider::stop()
         mDirectoryScanner->stop();		
 	}	
 
-	qDebug() << TAG << "STOP: Waiting...";
-
-	while (!QThreadPool::globalInstance()->waitForDone()) {
-
-		 qDebug() << "WAIT FOR DONE...";         
-	}
+	while (!QThreadPool::globalInstance()->waitForDone());
 
 	qDebug() << TAG << "WAIT FOR DONE finished";
 	
@@ -71,9 +62,15 @@ void StatisticsProvider::stop()
 	mDirectoryScanner = nullptr;		
 }
 
-ExtensionInfoList StatisticsProvider::getExtensionsInfo() const
+ExtensionsTotalInfo StatisticsProvider::fetchExtensionsInfo() const
 {
-	return mExtensionsInfoList;
+	if (mDirectoryScanner) {
+		return mDirectoryScanner->fetchExtensionsInfo();
+	}
+
+	qDebug() << TAG << "No data to fetch";
+
+	return ExtensionsTotalInfo{};
 }
 
 uint StatisticsProvider::getSubdirsCount() const

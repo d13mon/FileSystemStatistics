@@ -1,11 +1,18 @@
 #include "FileSystemStatisticsWindow.h"
 #include "StatisticsTableModel.h"
+#include "DirectoryScanner.h"
 
 #include <QSplitter>
 #include <QFileSystemModel>
 #include <QDebug>
 #include <QMessageBox>
 #include <QKeyEvent>
+
+#include <chrono>
+
+using namespace std::chrono;
+
+const QString FileSystemStatisticsWindow::TAG = "FileSystemStatisticsWindow:";
 
 FileSystemStatisticsWindow::FileSystemStatisticsWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -14,8 +21,11 @@ FileSystemStatisticsWindow::FileSystemStatisticsWindow(QWidget *parent)
 	
 	mFilesystemModel = new QFileSystemModel;
 	mFilesystemModel->setRootPath(QDir::rootPath());	
+	mFilesystemModel->setFilter(DirectoryScanner::filesystemScanFilter());
 
 	mStatisticsModel = new StatisticsTableModel(this);	
+	connect(mStatisticsModel, &StatisticsTableModel::extensionCountChanged, 
+		this, &FileSystemStatisticsWindow::updateExtensionsCount);
 
 	initStatisticsProvider();
 	initWidgets();
@@ -45,20 +55,23 @@ void FileSystemStatisticsWindow::initStatisticsProvider()
 		ui.statisticsSubdirsEdit->setText(QString("%1").arg(count));
 	});
 
-	connect(mStatisticsProvider, &StatisticsProvider::extensionsInfoUpdated,
-		this, &FileSystemStatisticsWindow::onExtensionsInfoUpdated);
+	connect(mStatisticsProvider, &StatisticsProvider::extensionsInfoAvailable,
+		this, &FileSystemStatisticsWindow::onExtensionsInfoAvailable);
 
 	connect(mStatisticsProvider, &StatisticsProvider::scanStarted, [this] {
-		updateStatus(OperationStatus::PROCESSING);		
+		updateStatus(OperationStatus::PROCESSING);	
+		startUpdateStatisticsTimer();
 	});
 
 	connect(mStatisticsProvider, &StatisticsProvider::scanStopped, [this] {
 		updateStatus(OperationStatus::STOPPING);
+		stopUpdateStatisticsTimer();
 		clearStatus();
 	});
 
 	connect(mStatisticsProvider, &StatisticsProvider::scanFinished, [this]{
 		updateStatus(OperationStatus::DONE);
+		stopUpdateStatisticsTimer();
 		clearStatus();
 	});	
 }
@@ -84,6 +97,7 @@ void FileSystemStatisticsWindow::initWidgets()
 	ui.filesystemTree->setHeaderHidden(true);	
 
 	ui.statisticsTable->setModel(mStatisticsModel);
+	ui.statisticsTable->horizontalHeader()->resizeSection(StatisticsTableModel::Columns::ColExtension, 200);
 	ui.statisticsTable->horizontalHeader()->resizeSection(StatisticsTableModel::Columns::ColFilesSize, 200);
 	ui.statisticsTable->horizontalHeader()->resizeSection(StatisticsTableModel::Columns::ColAvgFileSize, 200);
 	ui.statisticsTable->horizontalHeader()->setStyleSheet("font: bold");
@@ -119,7 +133,7 @@ void FileSystemStatisticsWindow::startScan(const QFileInfo & dirInfo)
 {
 	clear();	
 	ui.statisticsDirectoryLabel->setText("<b>" + dirInfo.absoluteFilePath() + "</b>");
-	mStatisticsProvider->start(dirInfo);
+	mStatisticsProvider->start(dirInfo);	
 }
 
 void FileSystemStatisticsWindow::updateStatus(OperationStatus status)
@@ -128,17 +142,29 @@ void FileSystemStatisticsWindow::updateStatus(OperationStatus status)
 	ui.statusOperationEdit->setText(toString(mStatus));		
 }
 
-void FileSystemStatisticsWindow::onExtensionsInfoUpdated(const ExtensionInfoList& extInfoList)
+void FileSystemStatisticsWindow::updateExtensionsCount(uint count)
 {
-	//qDebug() << "-----------------------------------------";
+     ui.statisticsExtensionsEdit->setText(QString("%1").arg(count));
+}
 
-	ui.statisticsExtensionsEdit->setText(QString("%1").arg(extInfoList.size()));
+void FileSystemStatisticsWindow::startUpdateStatisticsTimer()
+{
+	if (!mUpdateStatisticsTimerId) {
+         mUpdateStatisticsTimerId = startTimer(updateStatisticsTime());
+	}	
+}
 
-	mStatisticsModel->updateData(extInfoList);
-
-	for (auto ext : extInfoList) {
-	//	qDebug() << ext.name << ": COUNT = " << ext.filesCount << " SIZE = " << ext.sizeBytes << Qt::endl;
+void FileSystemStatisticsWindow::stopUpdateStatisticsTimer()
+{
+	if (mUpdateStatisticsTimerId) {
+		killTimer(mUpdateStatisticsTimerId);
+		mUpdateStatisticsTimerId = 0;
 	}
+}
+
+std::chrono::milliseconds FileSystemStatisticsWindow::updateStatisticsTime()
+{
+	return 1000ms; 
 }
 
 void FileSystemStatisticsWindow::clearStatistics()
@@ -157,8 +183,22 @@ void FileSystemStatisticsWindow::clearStatus()
 
 void FileSystemStatisticsWindow::clear()
 {
+	stopUpdateStatisticsTimer();
 	clearStatistics();
 	clearStatus();
+}
+
+void FileSystemStatisticsWindow::onExtensionsInfoAvailable(const ExtensionsTotalInfo& extInfo)
+{
+	mStatisticsModel->mergeExtensionsData(extInfo);
+}
+
+void FileSystemStatisticsWindow::timerEvent(QTimerEvent* event)
+{
+	if (event->timerId() == mUpdateStatisticsTimerId) {
+		auto extInfo = mStatisticsProvider->fetchExtensionsInfo();
+		mStatisticsModel->mergeExtensionsData(extInfo);
+	}
 }
 
 void FileSystemStatisticsWindow::closeEvent(QCloseEvent* event)
@@ -175,3 +215,5 @@ void FileSystemStatisticsWindow::keyPressEvent(QKeyEvent * event)
 		clear();
 	}
 }
+
+
