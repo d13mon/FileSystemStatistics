@@ -164,10 +164,9 @@ void DirectoryScanner::updateExtensionsInfo(const ExtensionInfoHash& extInfoHash
 void DirectoryScanner::sendExtensionsInfo()
 {
 	std::scoped_lock lock(mExtensionsInfoMutex);
-	if (!mExtensionsInfoHash.empty()) {
-		auto infoList = mExtensionsInfoHash.values();
-		emit extensionsInfoAvailable({ mDirInfo.absoluteFilePath(), mTotalExtensionInfo, infoList });
-	}
+	
+	auto infoList = mExtensionsInfoHash.values();
+	emit extensionsInfoAvailable({ mDirInfo.absoluteFilePath(), mTotalExtensionInfo, infoList });	
 }
 
 ExtensionsTotalInfo DirectoryScanner::fetchExtensionsInfo()
