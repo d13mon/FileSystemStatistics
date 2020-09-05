@@ -47,9 +47,7 @@ private:
 
 	static std::chrono::milliseconds updateStatisticsInterval();	
 
-protected: 
-	virtual void closeEvent(QCloseEvent* event) override;
-	virtual void keyPressEvent(QKeyEvent* event) override;
+protected: 	
 	virtual void timerEvent(QTimerEvent* event) override;
 
 private:

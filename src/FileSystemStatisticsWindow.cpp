@@ -151,8 +151,6 @@ void FileSystemStatisticsWindow::updateExtensionsCount(uint count)
 
 void FileSystemStatisticsWindow::startUpdateStatisticsTimer()
 {
-	qDebug() << TAG << "START TIMER";
-
 	if (!mUpdateStatisticsTimerId) {
          mUpdateStatisticsTimerId = startTimer(updateStatisticsInterval());
 	}	
@@ -160,8 +158,6 @@ void FileSystemStatisticsWindow::startUpdateStatisticsTimer()
 
 void FileSystemStatisticsWindow::stopUpdateStatisticsTimer()
 {
-	qDebug() << TAG << "STOP TIMER";
-
 	if (mUpdateStatisticsTimerId) {
 		killTimer(mUpdateStatisticsTimerId);
 		mUpdateStatisticsTimerId = 0;
@@ -214,19 +210,5 @@ void FileSystemStatisticsWindow::timerEvent(QTimerEvent* event)
 	}
 }
 
-void FileSystemStatisticsWindow::closeEvent(QCloseEvent* event)
-{
-	QMainWindow::closeEvent(event);
-}
-
-void FileSystemStatisticsWindow::keyPressEvent(QKeyEvent * event)
-{
-	//DBG
-	QMainWindow::keyPressEvent(event);
-
-	if (event->key() == Qt::Key_F1) {
-		clear();
-	}
-}
 
 

@@ -56,10 +56,7 @@ void StatisticsProvider::stop()
 
 	while (!QThreadPool::globalInstance()->waitForDone());
 
-	//Q_ASSERT(QThreadPool::globalInstance()->activeThreadCount() == 0);
-
-	qInfo() << TAG << "WAIT FOR DONE finished : active Threads = " 
-		<< QThreadPool::globalInstance()->activeThreadCount();
+	Q_ASSERT(QThreadPool::globalInstance()->activeThreadCount() == 0);	
 	
 	delete mDirectoryScanner;
 	mDirectoryScanner = nullptr;	
@@ -71,9 +68,7 @@ ExtensionsTotalInfo StatisticsProvider::fetchExtensionsInfo() const
 {
 	if (mDirectoryScanner) {
 		return mDirectoryScanner->fetchExtensionsInfo();
-	}
-
-	qDebug() << TAG << "No data to fetch";
+	}	
 
 	return ExtensionsTotalInfo{};
 }

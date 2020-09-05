@@ -23,9 +23,7 @@ QFileInfo DirectoryScanner::getDir() const
 }
 
 void DirectoryScanner::run()
-{
-	qInfo() << TAG << "RUN ENTER: dir =" << mDirInfo.absoluteFilePath() << " | is_dir = " << mDirInfo.isDir();		
-	
+{	
 	if (auto subdirsCount = getSubdirsCount(mDirInfo); subdirsCount != 0) {
 		emit subdirsCountReceived(subdirsCount);
 	}
@@ -36,8 +34,6 @@ void DirectoryScanner::run()
 		sendExtensionsInfo();
 		emit finished();
 	}	
-
-	qInfo() << TAG << "RUN EXIT: dir = " << mDirInfo.absoluteFilePath() << " STOPPED = " << mStopped;
 }
 
 void DirectoryScanner::stop()
@@ -60,12 +56,7 @@ void DirectoryScanner::scan(const QFileInfo& dirInfo)
 
 	ExtensionInfoHash extInfoHash;
 
-	QFileInfoList files = dir.entryInfoList(filesystemScanFilter());
-
-	//DBG
-	//qDebug() << TAG << "FilesInfo Count = " << files.size();
-
-	//qInfo() << TAG << "SCAN ENTER: DIR = " << dirInfo.absoluteFilePath();
+	QFileInfoList files = dir.entryInfoList(filesystemScanFilter());	
 
 	for (QFileInfo fi : files) {
 		if (mStopped)
@@ -92,9 +83,7 @@ void DirectoryScanner::scan(const QFileInfo& dirInfo)
 			extInfo.sizeBytes += size;
 			extInfoHash.insert(extInfo.name, extInfo);
 		}		
-	}
-
-	//qInfo() << TAG << "SCAN EXIT: DIR = " << dirInfo.absoluteFilePath() << " | results ready: size = " << extInfoHash.size();
+	}	
 
 	if (!extInfoHash.isEmpty()) {
 		updateExtensionsInfo(extInfoHash);
@@ -122,7 +111,7 @@ uint DirectoryScanner::getRealShortcutFileSize(const QFileInfo& fileInfo)
 	uint size = 0;
 	QFile file(fileInfo.absoluteFilePath());
 	if (file.exists() && file.open(QIODevice::ReadOnly)) {
-		//NOTE: Now the file size shows correctly
+		//NOTE: Now the shortcut (LNK) file size shows correctly
 		size = file.size();
 		file.close();
 	}
@@ -172,8 +161,6 @@ void DirectoryScanner::sendExtensionsInfo()
 ExtensionsTotalInfo DirectoryScanner::fetchExtensionsInfo()
 {
 	std::scoped_lock lock(mExtensionsInfoMutex);
-
-//	qInfo() << TAG << "FETCH DATA: size =" << mExtensionsInfoHash.size();
 
 	auto infoList = mExtensionsInfoHash.values();
 

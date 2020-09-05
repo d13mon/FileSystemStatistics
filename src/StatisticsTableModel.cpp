@@ -106,17 +106,12 @@ void StatisticsTableModel::mergeExtensionsData(const ExtensionsTotalInfo& extDat
 {	
 	auto & [dirPath, total, extList] = extData;
 	if (dirPath.isEmpty())
-		return;
-	
-	qDebug() << TAG << "MERGE: DIR=" << dirPath << " | TOTAL files = " 	<< total.filesCount 
-		<< " | Ext List size = " << extList.size() << " | rowCount = " << rowCount();
+		return;	
 
 	setTotalExtensionInfo(total);
 
 	for (auto extInfo : extList) {		
-         addExtensionInfo(extInfo);	
-
-		//QCoreApplication::processEvents();
+         addExtensionInfo(extInfo);			
 	}	
 
 	emit extensionCountChanged(extensionsCount());
@@ -143,8 +138,6 @@ void StatisticsTableModel::addExtensionInfo(const ExtensionInfo& extInfo)
 {
 	auto ipos = std::lower_bound(std::begin(mExtensionsInfoList), std::end(mExtensionsInfoList), extInfo);	
 
-	//qDebug() << TAG << "----->ENTER ADD EXT INFO: " << extInfo.name << " Files = " << extInfo.filesCount << " ROWS = " << rowCount();
-
 	if (ipos != std::end(mExtensionsInfoList)) {
 		
 		//NOTE: TOTAL info is always on first row (index = 0)	
@@ -154,12 +147,10 @@ void StatisticsTableModel::addExtensionInfo(const ExtensionInfo& extInfo)
 			
 			auto oldFilesCount = ipos->filesCount;
 			ipos->sizeBytes += extInfo.sizeBytes;
-			ipos->filesCount += extInfo.filesCount;
-			//qDebug() << TAG << "UPDATED: " << ipos->name << " Files = " << ipos->filesCount << "(+" << ipos->filesCount - oldFilesCount << ")";
+			ipos->filesCount += extInfo.filesCount;			
 		}
 		else
-		{
-			//qDebug() << TAG << "INSERTED(" << index << "): " << ipos->name << " Files = " << extInfo.filesCount;
+		{			
 			beginInsertRows(QModelIndex(), index, index);			
 			mExtensionsInfoList.insert(ipos, extInfo);	
 			endInsertRows();		
@@ -168,16 +159,12 @@ void StatisticsTableModel::addExtensionInfo(const ExtensionInfo& extInfo)
 	else {
 		//NOTE: TOTAL info is always on first row (index = 0)
 		int index = mExtensionsInfoList.size() + 1;
-		
-	//	qDebug() << TAG << "ADDED BACK(" << index  << "): " << extInfo.name << " Files = " << extInfo.filesCount;
 
         beginInsertRows(QModelIndex(), index, index);
 		mExtensionsInfoList.push_back(extInfo);
 		endInsertRows();
 		
 	}		
-
-	//qDebug() << TAG << "<------EXIT ADD EXT INFO: " << extInfo.name << " ROWS = " << rowCount() << " Extensions = " << extensionsCount();
 	
 	Q_ASSERT(rowCount() == mExtensionsInfoList.size() + 1);	
 }
@@ -188,12 +175,9 @@ void StatisticsTableModel::setTotalExtensionInfo(const ExtensionInfo& extInfo)
 		beginInsertRows(QModelIndex(), 0, 0);
 		mTotalExtensionInfo = extInfo;	    
 		endInsertRows();
-		Q_ASSERT(mTotalExtensionInfo.isTotal());
-		qDebug() << TAG << "TOTAL INSERTED: " << extInfo.name << " Files = " << extInfo.filesCount << " rowCount = " << rowCount();
+		Q_ASSERT(mTotalExtensionInfo.isTotal());		
 		return;
-	}
-
-	//qDebug() << TAG << "TOTAL UPDATED: " << extInfo.name << " Files = " << extInfo.filesCount;
+	}	
 
 	mTotalExtensionInfo = extInfo;
 }
