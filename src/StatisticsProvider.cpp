@@ -23,6 +23,8 @@ void StatisticsProvider::start(const QFileInfo& dirInfo)
 
 	Q_ASSERT(!mDirectoryScanner);
 
+	mDirInfo = dirInfo;
+
 	mDirectoryScanner = new DirectoryScanner(dirInfo);	
 	mDirectoryScanner->setAutoDelete(false);
 

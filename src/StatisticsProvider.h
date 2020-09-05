@@ -23,6 +23,9 @@ public:
 
 	uint getSubdirsCount() const;
 
+	inline QFileInfo getCurrentDirInfo() const { return mDirInfo; };
+	inline QString getCurrentDirPath() const { return mDirInfo.absoluteFilePath(); };
+
 signals:
 	void currentProcessedDirChanged(const QString & dirPath);
 	void subdirsCountReceived(uint count);
@@ -35,6 +38,7 @@ signals:
 private:
 	DirectoryScanner*    mDirectoryScanner = nullptr;	
 	uint                 mSubdirsCount = 0;	
+	QFileInfo            mDirInfo;
 	
 	static const QString TAG;
 };

@@ -25,7 +25,7 @@ FileSystemStatisticsWindow::FileSystemStatisticsWindow(QWidget *parent)
 
 	mStatisticsModel = new StatisticsTableModel(this);	
 	connect(mStatisticsModel, &StatisticsTableModel::extensionCountChanged, 
-		this, &FileSystemStatisticsWindow::updateExtensionsCount);
+		this, &FileSystemStatisticsWindow::updateExtensionsCount);	
 
 	initStatisticsProvider();
 	initWidgets();
@@ -59,25 +59,26 @@ void FileSystemStatisticsWindow::initStatisticsProvider()
 		this, &FileSystemStatisticsWindow::onExtensionsInfoAvailable);
 
 	connect(mStatisticsProvider, &StatisticsProvider::scanStarted, [this] {
-		updateStatus(OperationStatus::PROCESSING);	
 		startUpdateStatisticsTimer();
+		updateStatus(OperationStatus::PROCESSING);			
 	});
 
 	connect(mStatisticsProvider, &StatisticsProvider::scanStopped, [this] {
-		updateStatus(OperationStatus::STOPPING);
-		stopUpdateStatisticsTimer();
+		updateStatus(OperationStatus::STOPPING);		
 		clearStatus();
 	});
 
 	connect(mStatisticsProvider, &StatisticsProvider::scanFinished, [this]{
-		updateStatus(OperationStatus::DONE);
 		stopUpdateStatisticsTimer();
+		updateStatus(OperationStatus::DONE);		
 		clearStatus();
 	});	
 }
 
 FileSystemStatisticsWindow::~FileSystemStatisticsWindow()
 {
+	stopUpdateStatisticsTimer();
+
 	delete mStatisticsProvider;
 	delete mStatisticsModel;
 	delete mFilesystemModel;
@@ -90,13 +91,13 @@ void FileSystemStatisticsWindow::initWidgets()
 	ui.statisticsLogEdit->hide();
 
 	ui.filesystemTree->setModel(mFilesystemModel);
-	ui.filesystemTree->setColumnWidth(0, 250);	
-	//ui.filesystemTree->setColumnHidden(1, true);
+	ui.filesystemTree->setColumnWidth(0, 250);		
 	ui.filesystemTree->setColumnHidden(2, true);
 	ui.filesystemTree->setColumnHidden(3, true);	
 	ui.filesystemTree->setHeaderHidden(true);	
 
 	ui.statisticsTable->setModel(mStatisticsModel);
+	ui.statisticsTable->horizontalHeader()->resizeSection(StatisticsTableModel::Columns::ColNumeration, 40);
 	ui.statisticsTable->horizontalHeader()->resizeSection(StatisticsTableModel::Columns::ColExtension, 200);
 	ui.statisticsTable->horizontalHeader()->resizeSection(StatisticsTableModel::Columns::ColFilesSize, 200);
 	ui.statisticsTable->horizontalHeader()->resizeSection(StatisticsTableModel::Columns::ColAvgFileSize, 200);
@@ -150,7 +151,7 @@ void FileSystemStatisticsWindow::updateExtensionsCount(uint count)
 void FileSystemStatisticsWindow::startUpdateStatisticsTimer()
 {
 	if (!mUpdateStatisticsTimerId) {
-         mUpdateStatisticsTimerId = startTimer(updateStatisticsTime());
+         mUpdateStatisticsTimerId = startTimer(updateStatisticsInterval());
 	}	
 }
 
@@ -162,9 +163,9 @@ void FileSystemStatisticsWindow::stopUpdateStatisticsTimer()
 	}
 }
 
-std::chrono::milliseconds FileSystemStatisticsWindow::updateStatisticsTime()
+std::chrono::milliseconds FileSystemStatisticsWindow::updateStatisticsInterval()
 {
-	return 1000ms; 
+	return 500ms; 
 }
 
 void FileSystemStatisticsWindow::clearStatistics()
@@ -182,21 +183,28 @@ void FileSystemStatisticsWindow::clearStatus()
 }
 
 void FileSystemStatisticsWindow::clear()
-{
-	stopUpdateStatisticsTimer();
+{	
 	clearStatistics();
 	clearStatus();
 }
 
 void FileSystemStatisticsWindow::onExtensionsInfoAvailable(const ExtensionsTotalInfo& extInfo)
 {
-	mStatisticsModel->mergeExtensionsData(extInfo);
+	updateStatisticsModelData(extInfo);
 }
 
 void FileSystemStatisticsWindow::timerEvent(QTimerEvent* event)
 {
-	if (event->timerId() == mUpdateStatisticsTimerId) {
+	if (event->timerId() == mUpdateStatisticsTimerId) {		
 		auto extInfo = mStatisticsProvider->fetchExtensionsInfo();
+		updateStatisticsModelData(extInfo);
+	}
+}
+
+void FileSystemStatisticsWindow::updateStatisticsModelData(const ExtensionsTotalInfo& extInfo)
+{
+	if (auto &[dirPath, total, list] = extInfo;
+		!dirPath.isEmpty() && dirPath == mStatisticsProvider->getCurrentDirPath()) {		
 		mStatisticsModel->mergeExtensionsData(extInfo);
 	}
 }

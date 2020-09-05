@@ -27,7 +27,10 @@ public slots:
 private slots:	
 
 	void onExtensionsInfoAvailable(const ExtensionsTotalInfo& extInfo);
-	
+
+	void updateStatisticsModelData(const ExtensionsTotalInfo& extInfo);
+
+
 	void updateExtensionsCount(uint count);
 
 private:
@@ -42,7 +45,7 @@ private:
 	void startUpdateStatisticsTimer();
 	void stopUpdateStatisticsTimer();
 
-	static std::chrono::milliseconds updateStatisticsTime();	
+	static std::chrono::milliseconds updateStatisticsInterval();	
 
 protected: 
 	virtual void closeEvent(QCloseEvent* event) override;

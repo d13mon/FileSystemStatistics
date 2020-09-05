@@ -53,6 +53,8 @@ private:
 
 	uint getSubdirsCount(const QFileInfo& dirInfo);
 
+	static uint getRealShortcutFileSize(const QFileInfo& fileInfo);
+
 private:
 	QFileInfo             mDirInfo;
 

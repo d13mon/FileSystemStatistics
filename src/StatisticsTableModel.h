@@ -12,7 +12,7 @@ class StatisticsTableModel : public QAbstractTableModel
     Q_OBJECT      
 
 public:
-	enum Columns { ColExtension, ColFilesCount, ColFilesSize, ColAvgFileSize, Count };
+	enum Columns { ColNumeration, ColExtension, ColFilesCount, ColFilesSize, ColAvgFileSize, Count };
 
 public:
     explicit StatisticsTableModel(QObject *parent = nullptr);

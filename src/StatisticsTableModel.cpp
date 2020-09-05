@@ -21,6 +21,7 @@ QVariant StatisticsTableModel::headerData(int section, Qt::Orientation orientati
 	case Qt::DisplayRole:
 		switch (section)
 		{
+		case ColNumeration:  return tr("#");
 		case ColExtension:  return tr("Extension");
 		case ColFilesCount: return tr("Count");
 		case ColFilesSize: return tr("Total size (Bytes)");
@@ -70,6 +71,7 @@ QVariant StatisticsTableModel::data(const QModelIndex &index, int role) const
 
             switch(index.column())
             {
+			case ColNumeration: return row;
 			case ColExtension:  return extInfo.name.toUpper();
 			case ColFilesCount: return extInfo.filesCount;
 			case ColFilesSize: return extInfo.sizeBytes;
@@ -83,9 +85,10 @@ QVariant StatisticsTableModel::data(const QModelIndex &index, int role) const
 		case Qt::TextAlignmentRole:
 			switch (index.column())
 			{
-			case ColExtension:  return Qt::AlignCenter;
+			case ColNumeration:  
+			case ColExtension: 
 			case ColFilesCount: return Qt::AlignCenter;
-			case ColFilesSize: return QVariant(Qt::AlignRight | Qt::AlignVCenter);
+			case ColFilesSize: 
 			case ColAvgFileSize: return QVariant(Qt::AlignRight | Qt::AlignVCenter);
 			default:
 				return QString();
@@ -101,11 +104,16 @@ QVariant StatisticsTableModel::data(const QModelIndex &index, int role) const
 
 void StatisticsTableModel::mergeExtensionsData(const ExtensionsTotalInfo& extData)
 {	
-	qDebug() << TAG << "MERGE: rowCount = " << rowCount();
+	auto & [dirPath, total, extList] = extData;
+	if (dirPath.isEmpty())
+		return;
+	
+	qDebug() << TAG << "MERGE: DIR=" << dirPath << " | TOTAL files = " 	<< total.filesCount 
+		<< " | Ext List size = " << extList.size() << " | rowCount = " << rowCount();
 
-	setTotalExtensionInfo(extData.first);
+	setTotalExtensionInfo(total);
 
-	for (auto extInfo : extData.second) {		
+	for (auto extInfo : extList) {		
          addExtensionInfo(extInfo);	
 
 		//QCoreApplication::processEvents();
@@ -135,7 +143,7 @@ void StatisticsTableModel::addExtensionInfo(const ExtensionInfo& extInfo)
 {
 	auto ipos = std::lower_bound(std::begin(mExtensionsInfoList), std::end(mExtensionsInfoList), extInfo);	
 
-	qDebug() << TAG << "----->ENTER ADD EXT INFO: " << extInfo.name << " Files = " << extInfo.filesCount << " ROWS = " << rowCount();
+	//qDebug() << TAG << "----->ENTER ADD EXT INFO: " << extInfo.name << " Files = " << extInfo.filesCount << " ROWS = " << rowCount();
 	
 	int index = 0;
 
@@ -149,11 +157,11 @@ void StatisticsTableModel::addExtensionInfo(const ExtensionInfo& extInfo)
 			auto oldFilesCount = ipos->filesCount;
 			ipos->sizeBytes += extInfo.sizeBytes;
 			ipos->filesCount += extInfo.filesCount;
-			qDebug() << TAG << "UPDATED: " << ipos->name << " Files = " << ipos->filesCount << "(+" << ipos->filesCount - oldFilesCount << ")";
+			//qDebug() << TAG << "UPDATED: " << ipos->name << " Files = " << ipos->filesCount << "(+" << ipos->filesCount - oldFilesCount << ")";
 		}
 		else
 		{
-			qDebug() << TAG << "INSERTED(" << index << "): " << ipos->name << " Files = " << extInfo.filesCount;
+			//qDebug() << TAG << "INSERTED(" << index << "): " << ipos->name << " Files = " << extInfo.filesCount;
 			beginInsertRows(QModelIndex(), index, index);			
 			mExtensionsInfoList.insert(ipos, extInfo);	
 			endInsertRows();		
@@ -163,7 +171,7 @@ void StatisticsTableModel::addExtensionInfo(const ExtensionInfo& extInfo)
 		//NOTE: TOTAL info is always on first row (index = 0)
 		index = mExtensionsInfoList.size() + 1;
 		
-		qDebug() << TAG << "ADDED BACK(" << index  << "): " << extInfo.name << " Files = " << extInfo.filesCount;
+	//	qDebug() << TAG << "ADDED BACK(" << index  << "): " << extInfo.name << " Files = " << extInfo.filesCount;
 
         beginInsertRows(QModelIndex(), index, index);
 		mExtensionsInfoList.push_back(extInfo);
@@ -173,7 +181,7 @@ void StatisticsTableModel::addExtensionInfo(const ExtensionInfo& extInfo)
 
 	//emit dataChanged(createIndex(index, 0), createIndex(index, columnCount() - 1));
 
-	qDebug() << TAG << "<------EXIT ADD EXT INFO: " << extInfo.name << " ROWS = " << rowCount() << " Extensions = " << extensionsCount();
+	//qDebug() << TAG << "<------EXIT ADD EXT INFO: " << extInfo.name << " ROWS = " << rowCount() << " Extensions = " << extensionsCount();
 	
 	Q_ASSERT(rowCount() == mExtensionsInfoList.size() + 1);	
 }
